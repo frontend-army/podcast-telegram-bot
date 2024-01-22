@@ -22,7 +22,6 @@ export async function episodeDocExists(episodeNumber = 0) {
   return responseJson.results.length > 0;
 }
 
-
 export async function episodeDocHasTopic(episodeNumber = 0) {
   const response = await fetch(`https://api.notion.com/v1/search`, {
     method: "POST",
@@ -162,6 +161,27 @@ export async function updateEpisodeDoc(pageId, title, propertyId, messageId) {
           ],
           "id": "title"
         }
+      },
+    }),
+  });
+  const responseJson = await response.json();
+  console.log(responseJson);
+  return responseJson;
+}
+
+export async function getEpisodeDoc(env, episodeNumber = 0) {
+  const response = await fetch(`https://api.notion.com/v1/search`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${process.env.NOTION_SECRET}`,
+      "Content-Type": "application/json",
+      "Notion-Version": "2022-06-28",
+    },
+    body: JSON.stringify({
+      "query": `"${EPISODE_NAME_PREFIX} ${episodeNumber}"`,
+      "filter": {
+        "value": "page",
+        "property": "object"
       },
     }),
   });
