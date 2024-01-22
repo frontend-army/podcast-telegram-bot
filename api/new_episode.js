@@ -13,9 +13,9 @@ async function tweetMessage(text) {
     });
 }
 
-export default async (request) => {
+export default async function handler(request, response) {
     const chapter = request.payload.record;
-    const response = `
+    const text = `
     📢Subimos el Capitulo ${chapter.id} a YouTube y Spotify! 📢
 
     ${chapter.description}
@@ -27,6 +27,6 @@ export default async (request) => {
     Tambien te esperamos en nuestro Discord! 👋
 
     ➡️Discord: https://discord.com/invite/pKQ6KdPBj3`;
-    await tweetMessage(response);
-    return new Response('OK');
+    await tweetMessage(text);
+    return response.status(200).json({ ok: true });
 }

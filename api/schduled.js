@@ -37,7 +37,7 @@ async function sendMessage(apiKey, chatId, text) {
   return fetch(url).then(resp => resp.json());
 }
 
-export default async (event) => {
+export default async function handler(req, res) {
     const today = new Date();
     const days = dateDiffInDays(today, getNextPodcastDate(today));
     const nextEpisodeNumber = getNextEpisodeNumber();
@@ -82,4 +82,5 @@ export default async (event) => {
         }
       }
     }
+    return res.status(200).json({ ok: true });
   }
