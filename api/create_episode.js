@@ -33,7 +33,7 @@ function getNextEpisodeNumber() {
 
 export default async function handler(request, res) {
   if (request.method === "POST") {
-    const payload = await request.json();
+    const payload = request.body;
     console.log(payload);
     if ('message' in payload) {
       const input = String(payload.message.text);
