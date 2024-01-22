@@ -1,4 +1,5 @@
 const { updateEpisodeDoc, getEpisodeDoc } = require('../notion');
+const { sendMessage, pinMessage, unpinMessage } = require('../telegram');
 
 const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 const PODCAST_DAY_OF_WEEK = 3;
@@ -23,21 +24,6 @@ function dateDiffInDays(a, b) {
   const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
 
   return Math.floor((utc2 - utc1) / _MS_PER_DAY);
-}
-
-async function sendMessage(apiKey, chatId, text) {
-  const url = `https://api.telegram.org/bot${apiKey}/sendMessage?chat_id=${chatId}&text=${text}`;
-  return fetch(url).then(resp => resp.json());
-}
-
-async function pinMessage(apiKey, chatId, messageId) {
-  const url = `https://api.telegram.org/bot${apiKey}/pinChatMessage?chat_id=${chatId}&message_id=${messageId}`;
-  return fetch(url).then(resp => resp.json());
-}
-
-async function unpinMessage(apiKey, chatId, messageId) {
-  const url = `https://api.telegram.org/bot${apiKey}/unpinChatMessage?chat_id=${chatId}&message_id=${messageId}`;
-  return fetch(url).then(resp => resp.json());
 }
 
 function getNextEpisodeNumber() {
