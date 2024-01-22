@@ -14,7 +14,7 @@ async function tweetMessage(text) {
 }
 
 export default async function handler(request, response) {
-    const chapter = request.payload.record;
+    const chapter = request.body.payload.record;
     const text = `
     📢Subimos el Capitulo ${chapter.id} a YouTube y Spotify! 📢
 
