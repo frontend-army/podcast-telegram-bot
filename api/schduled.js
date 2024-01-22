@@ -1,14 +1,6 @@
 const { createNotionPage, episodeDocExists, episodeDocHasTopic, episodeDocQuestionsCount } = require('../notion');
-
-const PRINT_REMAINING_DAYS = false;
-const PODCAST_DAY_OF_WEEK = 3;
-const PODCAST_FREQUENCY = 2;
-const STARTING_PODCAST_DATE = "2023-10-04T21:00:00";
-const STARTING_PODCAST_NUMBER = 35;
-const EPISODE_NAME_PREFIX = "Capítulo";
-const EPISODE_NAME_SUFIX = "<A DEFINIR>";
-const MIN_QUESTIONS = 4;
-const NICE_TO_HAVE_QUESTIONS = 8;
+const { sendMessage } = require('../telegram');
+const {  PRINT_REMAINING_DAYS, PODCAST_DAY_OF_WEEK, PODCAST_FREQUENCY, STARTING_PODCAST_DATE, STARTING_PODCAST_NUMBER, EPISODE_NAME_PREFIX, EPISODE_NAME_SUFIX, MIN_QUESTIONS, NICE_TO_HAVE_QUESTIONS } = require('../constants');
 
 function getNextPodcastDate(fromDate) {
   var nextPodcastDate = new Date(fromDate.getTime());
@@ -30,11 +22,6 @@ function dateDiffInDays(a, b) {
 function getNextEpisodeNumber() {
   const today = new Date();
   return STARTING_PODCAST_NUMBER + Math.round(dateDiffInDays(new Date(STARTING_PODCAST_DATE), getNextPodcastDate(today)) / 7 / PODCAST_FREQUENCY);
-}
-
-async function sendMessage(apiKey, chatId, text) {
-  const url = `https://api.telegram.org/bot${apiKey}/sendMessage?chat_id=${chatId}&text=${text}`;
-  return fetch(url).then(resp => resp.json());
 }
 
 export default async function handler(req, res) {

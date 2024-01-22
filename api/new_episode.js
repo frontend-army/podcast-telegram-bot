@@ -9,9 +9,7 @@ async function tweetMessage(text) {
         accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
     });
 
-    return twitterClient.tweetsV2.createTweet({
-        text
-    });
+    return twitterClient.tweetsV2.createTweet({ text });
 }
 
 export default async function handler(request, response) {

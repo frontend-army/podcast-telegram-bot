@@ -1,13 +1,9 @@
 const { updateEpisodeDoc, getEpisodeDoc } = require('../notion');
 const { sendMessage, pinMessage, unpinMessage } = require('../telegram');
 
-const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-const PODCAST_DAY_OF_WEEK = 3;
-const PODCAST_FREQUENCY = 2;
-const STARTING_PODCAST_DATE = "2023-10-04T21:00:00";
-const STARTING_PODCAST_NUMBER = 35;
-const EPISODE_NAME_PREFIX = "Capítulo";
-const SET_TOPIC_COMMAND = "/definir_tema";
+const { MONTHS, PODCAST_DAY_OF_WEEK, PODCAST_FREQUENCY, STARTING_PODCAST_DATE, STARTING_PODCAST_NUMBER, EPISODE_NAME_PREFIX,
+SET_TOPIC_COMMAND } = require('../constants');
+
 
 function getNextPodcastDate(fromDate) {
   var nextPodcastDate = new Date(fromDate.getTime());
