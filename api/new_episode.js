@@ -2,9 +2,6 @@ import { TwitterClient } from 'twitter-api-client';
 
 async function tweetMessage(text) {
     console.log('Tweet length: ', text.length);
-    if (text.length > 280) {
-        throw new Error('Tweet too long');
-    }
     const twitterClient = new TwitterClient({
         apiKey: process.env.CONSUMER_KEY,
         apiSecret: process.env.CONSUMER_SECRET,
@@ -20,7 +17,9 @@ async function tweetMessage(text) {
 export default async function handler(request, response) {
     const chapter = request.body.record;
     const text = `📢Subimos el Capitulo ${chapter.id} a YouTube y Spotify! 📢
-    ${chapter.description}
+
+    ${chapter.title}
+
     ➡️Spotify: ${chapter.spotify_url}
     ➡️YouTube: ${chapter.youtube_url}
     Tambien te esperamos en nuestro Discord! 👋
