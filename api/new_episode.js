@@ -1,3 +1,5 @@
+import { TwitterClient } from 'twitter-api-client';
+
 async function tweetMessage(text) {
     const twitterClient = new TwitterClient({
         apiKey: process.env.CONSUMER_KEY,
@@ -9,7 +11,6 @@ async function tweetMessage(text) {
     return twitterClient.tweetsV2.createTweet({
         text
     });
-
 }
 
 export default async (request) => {
