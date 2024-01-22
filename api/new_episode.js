@@ -1,24 +1,19 @@
 async function tweetMessage(text) {
-
-    const CONSUMER_KEY=""
-    const CONSUMER_SECRET=""
-    const ACCESS_TOKEN=""
-    const ACCESS_TOKEN_SECRET=""
-
     const twitterClient = new TwitterClient({
-        apiKey: CONSUMER_KEY,
-        apiSecret: CONSUMER_SECRET,
-        accessToken: ACCESS_TOKEN,
-        accessTokenSecret: ACCESS_TOKEN_SECRET,
+        apiKey: process.env.CONSUMER_KEY,
+        apiSecret: process.env.CONSUMER_SECRET,
+        accessToken: process.env.ACCESS_TOKEN,
+        accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
     });
+
     return twitterClient.tweetsV2.createTweet({
         text
     });
 
 }
 
-export default async (request, env, ctx) => {
-    const chapter = payload.record;
+export default async (request) => {
+    const chapter = request.payload.record;
     const response = `
     📢Subimos el Capitulo ${chapter.id} a YouTube y Spotify! 📢
 

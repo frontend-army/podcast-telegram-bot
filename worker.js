@@ -309,7 +309,7 @@ export default {
           const sentMessage = await this.sendMessage(env.TELEGRAM_API_KEY, env.CHAT_ID, response);
           const oldMessageProperty = nextEpisodeDocResponse.results[0]?.properties?.telegram_message_id
           // TODO: Separate updating title from message_id and get new url for message.
-          await updateEpisodeDoc(env, nextEpisodeDocResponse.results[0]?.id, `${EPISODE_NAME_PREFIX} ${nextEpisodeNumber}: ${topic}`, oldMessageProperty.id, sentMessage?.result?.message_id)
+          await updateEpisodeDoc(nextEpisodeDocResponse.results[0]?.id, `${EPISODE_NAME_PREFIX} ${nextEpisodeNumber}: ${topic}`, oldMessageProperty.id, sentMessage?.result?.message_id)
 
           // unpin old message
           if (oldMessageProperty?.number) {

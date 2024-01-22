@@ -1,3 +1,6 @@
+const { updateEpisodeDoc, getEpisodeDoc } = require('../notion');
+
+const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 const PODCAST_DAY_OF_WEEK = 3;
 const PODCAST_FREQUENCY = 2;
 const STARTING_PODCAST_DATE = "2023-10-04T21:00:00";
@@ -22,51 +25,6 @@ function dateDiffInDays(a, b) {
   return Math.floor((utc2 - utc1) / _MS_PER_DAY);
 }
 
-async function updateEpisodeDoc(env, pageId, title, propertyId, messageId) {
-  console.log(env, pageId, title, propertyId, messageId);
-  const response = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
-    method: "PATCH",
-    headers: {
-      "Authorization": `Bearer ${env.NOTION_SECRET}`,
-      "Content-Type": "application/json",
-      "Notion-Version": "2022-06-28",
-    },
-    body: JSON.stringify({
-      "properties": {
-        "telegram_message_id": {
-          "number": messageId,
-          "id": propertyId,
-        },
-        "Título": {
-          "title": [
-            {
-              "type": "text",
-              "text": {
-                "content": title,
-                "link": null
-              },
-              "annotations": {
-                "bold": false,
-                "italic": false,
-                "strikethrough": false,
-                "underline": false,
-                "code": false,
-                "color": "default"
-              },
-              "plain_text": title,
-              "href": null
-            }
-          ],
-          "id": "title"
-        }
-      },
-    }),
-  });
-  const responseJson = await response.json();
-  console.log(responseJson);
-  return responseJson;
-}
-
 async function sendMessage(apiKey, chatId, text) {
   const url = `https://api.telegram.org/bot${apiKey}/sendMessage?chat_id=${chatId}&text=${text}`;
   return fetch(url).then(resp => resp.json());
@@ -82,59 +40,36 @@ async function unpinMessage(apiKey, chatId, messageId) {
   return fetch(url).then(resp => resp.json());
 }
 
-
-async function getEpisodeDoc(env, episodeNumber = 0) {
-  const response = await fetch(`https://api.notion.com/v1/search`, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${env.NOTION_SECRET}`,
-      "Content-Type": "application/json",
-      "Notion-Version": "2022-06-28",
-    },
-    body: JSON.stringify({
-      "query": `"${EPISODE_NAME_PREFIX} ${episodeNumber}"`,
-      "filter": {
-        "value": "page",
-        "property": "object"
-      },
-    }),
-  });
-  const responseJson = await response.json();
-  console.log(responseJson);
-  return responseJson;
-}
-
-
 function getNextEpisodeNumber() {
   const today = new Date();
   return STARTING_PODCAST_NUMBER + Math.round(dateDiffInDays(new Date(STARTING_PODCAST_DATE), getNextPodcastDate(today)) / 7 / PODCAST_FREQUENCY);
 }
 
-export default async(request, env) => {
+export default async(request) => {
     if (request.method === "POST") {
       const payload = await request.json();
       console.log(payload);
       if ('message' in payload) {
         const input = String(payload.message.text);
         if (input.split(" ")[0].toLowerCase() === SET_TOPIC_COMMAND.toLowerCase()) {
-          if (payload.message.chat.id.toString() !== env.CHAT_ID) {
-            await sendMessage(env.TELEGRAM_API_KEY, payload.message.chat.id, "Solo respondo a comandos en el grupo.");
+          if (payload.message.chat.id.toString() !== process.env.CHAT_ID) {
+            await sendMessage(process.env.TELEGRAM_API_KEY, payload.message.chat.id, "Solo respondo a comandos en el grupo.");
             return new Response('OK');
           }
 
           const [topic, description] = input.slice(SET_TOPIC_COMMAND.length).trim().split(';');
           if (topic?.length === 0) {
-            await sendMessage(env.TELEGRAM_API_KEY, payload.message.chat.id, "Agregá el tema después del comando");
+            await sendMessage(process.env.TELEGRAM_API_KEY, payload.message.chat.id, "Agregá el tema después del comando");
             return new Response('OK');
           }
 
           const today = new Date();
           const days = dateDiffInDays(today, getNextPodcastDate(today));
           const nextEpisodeNumber = getNextEpisodeNumber();
-          const nextEpisodeDocResponse = await getEpisodeDoc(env, nextEpisodeNumber);
+          const nextEpisodeDocResponse = await getEpisodeDoc(nextEpisodeNumber);
 
           if (days === 7 * PODCAST_FREQUENCY - 1 || days === 0 || nextEpisodeDocResponse.results.length === 0) {
-            await sendMessage(env.TELEGRAM_API_KEY, payload.message.chat.id, "Bancá que todavía ni creé el doc.");
+            await sendMessage(process.env.TELEGRAM_API_KEY, payload.message.chat.id, "Bancá que todavía ni creé el doc.");
             return new Response('OK');
           }
 
@@ -179,17 +114,17 @@ export default async(request, env) => {
             ⬇️⬇️⬇️⬇️⬇️⬇️⬇️
             https://www.twitch.tv/frontend_army
           `;
-          const sentMessage = await sendMessage(env.TELEGRAM_API_KEY, env.CHAT_ID, response);
+          const sentMessage = await sendMessage(process.env.TELEGRAM_API_KEY, process.env.CHAT_ID, response);
           const oldMessageProperty = nextEpisodeDocResponse.results[0]?.properties?.telegram_message_id
           // TODO: Separate updating title from message_id and get new url for message.
-          await updateEpisodeDoc(env, nextEpisodeDocResponse.results[0]?.id, `${EPISODE_NAME_PREFIX} ${nextEpisodeNumber}: ${topic}`, oldMessageProperty.id, sentMessage?.result?.message_id)
+          await updateEpisodeDoc(nextEpisodeDocResponse.results[0]?.id, `${EPISODE_NAME_PREFIX} ${nextEpisodeNumber}: ${topic}`, oldMessageProperty.id, sentMessage?.result?.message_id)
 
           // unpin old message
           if (oldMessageProperty?.number) {
-            await unpinMessage(env.TELEGRAM_API_KEY, env.CHAT_ID, oldMessageProperty.number);
+            await unpinMessage(process.env.TELEGRAM_API_KEY, process.env.CHAT_ID, oldMessageProperty.number);
           }
           // pin new message
-          await pinMessage(env.TELEGRAM_API_KEY, env.CHAT_ID, sentMessage?.result?.message_id);
+          await pinMessage(process.env.TELEGRAM_API_KEY, process.env.CHAT_ID, sentMessage?.result?.message_id);
         }
       }
     }
