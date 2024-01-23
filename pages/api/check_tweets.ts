@@ -15,7 +15,7 @@ export default async function handler(request: NextRequest, response: NextRespon
 
   for (const tweet of res.data) {
     await tweetMessage(tweet.text);
-    client.from('tweets').delete().match({ id: tweet.id });
+    await client.from('tweets').delete().match({ id: tweet.id });
   }
 
   return response.status(200).json({ published: res.data.length });
