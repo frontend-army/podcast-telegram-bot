@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateEpisodeDoc, getEpisodeDoc } from '../../services/notion';
 import { sendMessage, pinMessage, unpinMessage } from '../../services/telegram';
-import { MONTHS, PODCAST_DAY_OF_WEEK, PODCAST_FREQUENCY, STARTING_PODCAST_DATE, STARTING_PODCAST_NUMBER, EPISODE_NAME_PREFIX, SET_TOPIC_COMMAND } from '../../services/config';
+import { PODCAST_DAY_OF_WEEK, PODCAST_FREQUENCY, STARTING_PODCAST_DATE, STARTING_PODCAST_NUMBER, EPISODE_NAME_PREFIX, SET_TOPIC_COMMAND } from '../../services/config';
 
 function getNextPodcastDate(fromDate: Date) {
   var nextPodcastDate = new Date(fromDate.getTime());
@@ -55,45 +55,7 @@ export default async function handler(request: NextRequest, res: NextResponse) {
 
         const notionEpisodeUrl = nextEpisodeDocResponse.results[0]?.url;
         const response = `Capítulo ${nextEpisodeNumber}: ${topic} ${notionEpisodeUrl}
-          ========================================================
-          🗓️Miercoles ${getNextPodcastDate(today).getDate()} de ${MONTHS[getNextPodcastDate(today).getMonth()]}🗓️
-
-          18:30Hs 🇦🇷
-          16:30Hs 🇨🇴
-          22:30Hs 🇪🇸
-
-          Tenemos nuevo capitulo, ${topic}!
-
-          ${description}
-
-          Los esperamos! 🔥
-          ========================================================
-          HOY🗓️
-
-          18:30Hs 🇦🇷 - 16:30Hs 🇨🇴 - 22:30Hs 🇪🇸
-
-          ${description}!
-
-          Nos vemos! 👋
-          ========================================================
-          📢En 30 minutos arrancamos!📢
-
-          Capítulo ${nextEpisodeNumber}: ${topic}
-
-          Te esperamos!
-          ⬇️⬇️⬇️⬇️⬇️⬇️⬇️
-          https://www.twitch.tv/frontend_army
-          ========================================================
-          🔴ESTAMOS LIVE🔴
-
-          🔥🔥🔥
-            Capitulo ${nextEpisodeNumber}: ${topic}
-          🔥🔥🔥
-
-          No se lo pierdan!
-          ⬇️⬇️⬇️⬇️⬇️⬇️⬇️
-          https://www.twitch.tv/frontend_army
-        `;
+          Editor link: https://podcast-telegram-bot-seven.vercel.app/editor?date=${getNextPodcastDate(today).getDate()}/${getNextPodcastDate(today).getMonth()}&topic=${topic}&description=${description}`;
         const sentMessage = await sendMessage(process.env.TELEGRAM_API_KEY, process.env.CHAT_ID, response);
         const oldMessageProperty = nextEpisodeDocResponse.results[0]?.properties?.telegram_message_id
         // TODO: Separate updating title from message_id and get new url for message.
