@@ -7,6 +7,10 @@
     {
       "path": "/api/scheduled",
       "schedule": "30 18 * * *"
+    },
+    {
+      "path": "/api/check_tweets",
+      "schedule": "0 */5 * * *"
     }
   ]
 }
