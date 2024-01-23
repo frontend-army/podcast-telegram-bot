@@ -1,11 +1,9 @@
-const { updateEpisodeDoc, getEpisodeDoc } = require('../notion');
-const { sendMessage, pinMessage, unpinMessage } = require('../telegram');
+import { NextRequest, NextResponse } from 'next/server';
+import { updateEpisodeDoc, getEpisodeDoc } from '../../services/notion';
+import { sendMessage, pinMessage, unpinMessage } from '../../services/telegram';
+import { MONTHS, PODCAST_DAY_OF_WEEK, PODCAST_FREQUENCY, STARTING_PODCAST_DATE, STARTING_PODCAST_NUMBER, EPISODE_NAME_PREFIX, SET_TOPIC_COMMAND } from '../../services/config';
 
-const { MONTHS, PODCAST_DAY_OF_WEEK, PODCAST_FREQUENCY, STARTING_PODCAST_DATE, STARTING_PODCAST_NUMBER, EPISODE_NAME_PREFIX,
-SET_TOPIC_COMMAND } = require('../constants');
-
-
-function getNextPodcastDate(fromDate) {
+function getNextPodcastDate(fromDate: Date) {
   var nextPodcastDate = new Date(fromDate.getTime());
   nextPodcastDate.setDate(nextPodcastDate.getDate() + (PODCAST_DAY_OF_WEEK + 7 - nextPodcastDate.getDay()) % 7);
   const weeksToPocast = (dateDiffInDays(new Date(STARTING_PODCAST_DATE), nextPodcastDate) / 7) % PODCAST_FREQUENCY;
@@ -13,7 +11,7 @@ function getNextPodcastDate(fromDate) {
   return nextPodcastDate;
 }
 
-function dateDiffInDays(a, b) {
+function dateDiffInDays(a: Date, b: Date) {
   const _MS_PER_DAY = 1000 * 60 * 60 * 24;
   // Discard the time and time-zone information.
   const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
@@ -27,11 +25,11 @@ function getNextEpisodeNumber() {
   return STARTING_PODCAST_NUMBER + Math.round(dateDiffInDays(new Date(STARTING_PODCAST_DATE), getNextPodcastDate(today)) / 7 / PODCAST_FREQUENCY);
 }
 
-export default async function handler(request, res) {
+export default async function handler(request: NextRequest, res: NextResponse) {
   if (request.method === "POST") {
     const payload = request.body;
     console.log(payload);
-    if ('message' in payload) {
+    if ('message' in payload!) {
       const input = String(payload.message.text);
       if (input.split(" ")[0].toLowerCase() === SET_TOPIC_COMMAND.toLowerCase()) {
         if (payload.message.chat.id.toString() !== process.env.CHAT_ID) {

@@ -1,6 +1,6 @@
-const { createNotionPage, episodeDocExists, episodeDocHasTopic, episodeDocQuestionsCount } = require('../notion');
-const { sendMessage } = require('../telegram');
-const {  PRINT_REMAINING_DAYS, PODCAST_DAY_OF_WEEK, PODCAST_FREQUENCY, STARTING_PODCAST_DATE, STARTING_PODCAST_NUMBER, EPISODE_NAME_PREFIX, EPISODE_NAME_SUFIX, MIN_QUESTIONS, NICE_TO_HAVE_QUESTIONS } = require('../constants');
+const { createNotionPage, episodeDocExists, episodeDocHasTopic, episodeDocQuestionsCount } = require('../../services/notion');
+const { sendMessage } = require('../../services/telegram');
+const {  PRINT_REMAINING_DAYS, PODCAST_DAY_OF_WEEK, PODCAST_FREQUENCY, STARTING_PODCAST_DATE, STARTING_PODCAST_NUMBER, EPISODE_NAME_PREFIX, EPISODE_NAME_SUFIX, MIN_QUESTIONS, NICE_TO_HAVE_QUESTIONS } = require('../../services/config');
 
 function getNextPodcastDate(fromDate) {
   var nextPodcastDate = new Date(fromDate.getTime());
