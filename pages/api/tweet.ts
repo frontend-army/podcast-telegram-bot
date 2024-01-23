@@ -9,7 +9,7 @@ const client = createClient(
 export default async function handler(request: NextRequest, response: NextResponse) {
   if (request.method === "POST") {
     return client.from('tweets').insert([
-      { text: request.body.text, publish_date: new Date(request.body.date + '+03:00') },
+      { text: request.body.text, publish_date: new Date(request.body.date + '-03:00') },
     ]).then(res => {
       return response.json(res);
     })
