@@ -169,7 +169,7 @@ export async function updateEpisodeDoc(pageId, title, propertyId, messageId) {
   return responseJson;
 }
 
-export async function getEpisodeDoc(env, episodeNumber = 0) {
+export async function getEpisodeDoc(episodeNumber = 0) {
   const response = await fetch(`https://api.notion.com/v1/search`, {
     method: "POST",
     headers: {

@@ -32,10 +32,10 @@ export default async function handler(request: NextRequest, res: NextResponse) {
     if ('message' in payload!) {
       const input = String(payload.message.text);
       if (input.split(" ")[0].toLowerCase() === SET_TOPIC_COMMAND.toLowerCase()) {
-        if (payload.message.chat.id.toString() !== process.env.CHAT_ID) {
-          await sendMessage(process.env.TELEGRAM_API_KEY, payload.message.chat.id, "Solo respondo a comandos en el grupo.");
-          return res.status(200).json({ ok: true });
-        }
+        // if (payload.message.chat.id.toString() !== process.env.CHAT_ID) {
+        //   await sendMessage(process.env.TELEGRAM_API_KEY, payload.message.chat.id, "Solo respondo a comandos en el grupo.");
+        //   return res.status(200).json({ ok: true });
+        // }
 
         const [topic, description] = input.slice(SET_TOPIC_COMMAND.length).trim().split(';');
         if (topic?.length === 0) {
