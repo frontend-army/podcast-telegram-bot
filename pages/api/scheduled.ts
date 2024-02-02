@@ -1,6 +1,7 @@
 import { createNotionPage, episodeDocExists, episodeDocHasTopic, episodeDocQuestionsCount } from '../../services/notion';
 import { sendMessage } from '../../services/telegram';
 import { PRINT_REMAINING_DAYS, PODCAST_DAY_OF_WEEK, PODCAST_FREQUENCY, STARTING_PODCAST_DATE, STARTING_PODCAST_NUMBER, EPISODE_NAME_PREFIX, EPISODE_NAME_SUFIX, MIN_QUESTIONS, NICE_TO_HAVE_QUESTIONS } from '../../services/config';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 function getNextPodcastDate(fromDate) {
   var nextPodcastDate = new Date(fromDate.getTime());
@@ -24,7 +25,7 @@ function getNextEpisodeNumber() {
   return STARTING_PODCAST_NUMBER + Math.round(dateDiffInDays(new Date(STARTING_PODCAST_DATE), getNextPodcastDate(today)) / 7 / PODCAST_FREQUENCY);
 }
 
-export default async function handler(req, res) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const today = new Date();
     const days = dateDiffInDays(today, getNextPodcastDate(today));
     const nextEpisodeNumber = getNextEpisodeNumber();

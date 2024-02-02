@@ -1,8 +1,7 @@
-import { NextResponse } from 'next/server';
 import { updateEpisodeDoc, getEpisodeDoc } from '../../services/notion';
 import { sendMessage, pinMessage, unpinMessage } from '../../services/telegram';
 import { PODCAST_DAY_OF_WEEK, PODCAST_FREQUENCY, STARTING_PODCAST_DATE, STARTING_PODCAST_NUMBER, EPISODE_NAME_PREFIX, SET_TOPIC_COMMAND } from '../../services/config';
-import { NextApiRequest } from 'next';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 function getNextPodcastDate(fromDate: Date) {
   var nextPodcastDate = new Date(fromDate.getTime());
@@ -50,7 +49,7 @@ interface TelegramRequest extends NextApiRequest {
 }
 
 
-export default async function handler(request: TelegramRequest) {
+export default async function handler(request: TelegramRequest, res: NextApiResponse) {
   if (request.method === "POST") {
     const payload = request.body;
     console.log(payload);
@@ -59,13 +58,13 @@ export default async function handler(request: TelegramRequest) {
       if (input.split(" ")[0].toLowerCase() === SET_TOPIC_COMMAND.toLowerCase()) {
         if (payload.message.chat.id.toString() !== process.env.CHAT_ID) {
           await sendMessage(process.env.TELEGRAM_API_KEY, payload.message.chat.id, "Solo respondo a comandos en el grupo.");
-          return NextResponse.json({ok: true }, { status: 200 });
+          return res.status(200).json({ ok: true })
         }
 
         const [topic, description] = input.slice(SET_TOPIC_COMMAND.length).trim().split(';');
         if (topic?.length === 0) {
           await sendMessage(process.env.TELEGRAM_API_KEY, payload.message.chat.id, "Agregá el tema después del comando");
-          return NextResponse.json({ok: true }, { status: 200 });
+          return res.status(200).json({ ok: true })
         }
 
         const today = new Date();
@@ -75,7 +74,7 @@ export default async function handler(request: TelegramRequest) {
 
         if (days === 7 * PODCAST_FREQUENCY - 1 || days === 0 || nextEpisodeDocResponse.results.length === 0) {
           await sendMessage(process.env.TELEGRAM_API_KEY, payload.message.chat.id, "Bancá que todavía ni creé el doc.");
-          return NextResponse.json({ok: true }, { status: 200 });
+          return res.status(200).json({ ok: true })
         }
 
         const notionEpisodeUrl = nextEpisodeDocResponse.results[0]?.url;
@@ -95,5 +94,5 @@ export default async function handler(request: TelegramRequest) {
       }
     }
   }
-  return NextResponse.json({ok: true }, { status: 200 });
+  return res.status(200).json({ ok: true })
 }
