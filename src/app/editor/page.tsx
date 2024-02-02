@@ -2,8 +2,12 @@
 import { useSearchParams } from 'next/navigation';
 import { useState } from "react";
 
+const months = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto",
+  "Septiembre", "Octubre", "Noviembre", "Diciembre"
+]
 const templates = [
-  (chapter) => `🗓️Miercoles ${chapter.date}🗓️
+  (chapter) => `🗓️Miercoles ${chapter.date.getDate()} de ${months[chapter.date.getMonth()]}🗓️
 
 18:30Hs 🇦🇷
 16:30Hs 🇨🇴
@@ -11,50 +15,52 @@ const templates = [
 
 Tenemos nuevo capitulo!
 
-${chapter.title}
+${chapter.topic}
 
 Los esperamos! 🔥`,
   (chapter) => `HOY🗓️
 
 18:30Hs 🇦🇷 - 16:30Hs 🇨🇴 - 22:30Hs 🇪🇸
 
-hablamos ${chapter.title}!
+hablamos ${chapter.description}!
 
 nos vemos! 👋`
 ];
 
 export default function Home() {
   const searchParam = useSearchParams();
+  const [loading, setLoading] = useState(false);
   const [tweets = [], setTweets] = useState(
     templates.map((template) => ({
       text: template({
-        title: searchParam?.get('title'),
-        date: searchParam?.get('date'),
+        topic: searchParam?.get('topic'),
+        date: new Date(Number(searchParam?.get('date'))),
         description: searchParam?.get('description') 
       }),
       date: new Date().toISOString().slice(0, 16)
     }))
   );
   const handleSave = async (tweet) => {
+    setLoading(true);
     await fetch("/api/tweet", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(tweet)
-    });
+    }).finally(() => setLoading(false));
     alert('Tweet saved!');
   }
   return (
-    <main className="flex min-h-screen flex-col items-center p-24 gap-12">
+    <main className="flex min-h-screen flex-col items-center py-24 px-4 gap-12">
       {tweets.map((tweet, index) => (
         <div
           key={index}
-          className="w-full h-96 flex flex-col items-center justify-center gap-2 text-black"
+          className="w-full h-96 max-w-[800px] flex flex-col items-center justify-center gap-2 text-black"
         >
           <textarea
             name="tweet"
-            className="w-full h-96 border rounded-lg p-4"
+            className="w-full h-96 border rounded-lg p-2"
             value={tweet.text}
             onChange={(e) => {
               setTweets((prev) => {
@@ -67,7 +73,7 @@ export default function Home() {
           <div className="w-full flex items-center justify-between">
             <input
               type="datetime-local"
-              className="border rounded-lg p-4"
+              className="border rounded-lg p-2"
               value={tweet.date}
               onChange={(e) => {
                 setTweets((prev) => {
@@ -79,8 +85,8 @@ export default function Home() {
             />
             <input type="hidden" id="timezone" name="timezone" value="-03:00" />
             <button
-              className="px-8 py-4 text-white border rounded-lg bg-balance self-end disabled:opacity-50"
-              disabled={tweet.text.length > 280}
+              className="px-6 py-2 text-white border rounded-lg bg-balance self-end disabled:opacity-50"
+              disabled={tweet.text.length > 280 || loading}
               onClick={() => handleSave(tweet)}
             >
               Save

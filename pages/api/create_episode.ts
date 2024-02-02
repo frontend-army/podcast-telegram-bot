@@ -79,7 +79,7 @@ export default async function handler(request: TelegramRequest, res: NextApiResp
 
         const notionEpisodeUrl = nextEpisodeDocResponse.results[0]?.url;
         const response = `Capítulo ${nextEpisodeNumber}: ${topic} ${notionEpisodeUrl}
-          Editor link: https://podcast-telegram-bot-seven.vercel.app/editor?date=${getNextPodcastDate(today).getDate()}/${getNextPodcastDate(today).getMonth()}&topic=${topic}&description=${description}`;
+          Editor link: https://podcast-telegram-bot-seven.vercel.app/editor?date=${getNextPodcastDate(today).getTime()}&topic=${topic}&description=${description}`;
         const sentMessage = await sendMessage(process.env.TELEGRAM_API_KEY, process.env.CHAT_ID, response);
         const oldMessageProperty = nextEpisodeDocResponse.results[0]?.properties?.telegram_message_id
         // TODO: Separate updating title from message_id and get new url for message.
