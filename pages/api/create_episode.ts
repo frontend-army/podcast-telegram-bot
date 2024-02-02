@@ -1,7 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { updateEpisodeDoc, getEpisodeDoc } from '../../services/notion';
 import { sendMessage, pinMessage, unpinMessage } from '../../services/telegram';
 import { PODCAST_DAY_OF_WEEK, PODCAST_FREQUENCY, STARTING_PODCAST_DATE, STARTING_PODCAST_NUMBER, EPISODE_NAME_PREFIX, SET_TOPIC_COMMAND } from '../../services/config';
+import { NextApiRequest } from 'next';
 
 function getNextPodcastDate(fromDate: Date) {
   var nextPodcastDate = new Date(fromDate.getTime());
@@ -25,22 +26,46 @@ function getNextEpisodeNumber() {
   return STARTING_PODCAST_NUMBER + Math.round(dateDiffInDays(new Date(STARTING_PODCAST_DATE), getNextPodcastDate(today)) / 7 / PODCAST_FREQUENCY);
 }
 
-export default async function handler(request: NextRequest, res: NextResponse) {
+interface TelegramRequest extends NextApiRequest {
+  body: {
+    message: {
+      date: number;
+      chat: {
+        last_name: string;
+        id: number;
+        type: string;
+        first_name: string;
+        username: string;
+      };
+      message_id: number;
+      from: {
+        last_name: string;
+        id: number;
+        first_name: string;
+        username: string;
+      }
+      text: string;
+    };
+  };
+}
+
+
+export default async function handler(request: TelegramRequest) {
   if (request.method === "POST") {
     const payload = request.body;
     console.log(payload);
-    if ('message' in payload!) {
+    if ('message' in payload) {
       const input = String(payload.message.text);
       if (input.split(" ")[0].toLowerCase() === SET_TOPIC_COMMAND.toLowerCase()) {
-        // if (payload.message.chat.id.toString() !== process.env.CHAT_ID) {
-        //   await sendMessage(process.env.TELEGRAM_API_KEY, payload.message.chat.id, "Solo respondo a comandos en el grupo.");
-        //   return res.status(200).json({ ok: true });
-        // }
+        if (payload.message.chat.id.toString() !== process.env.CHAT_ID) {
+          await sendMessage(process.env.TELEGRAM_API_KEY, payload.message.chat.id, "Solo respondo a comandos en el grupo.");
+          return NextResponse.json({ok: true }, { status: 200 });
+        }
 
         const [topic, description] = input.slice(SET_TOPIC_COMMAND.length).trim().split(';');
         if (topic?.length === 0) {
           await sendMessage(process.env.TELEGRAM_API_KEY, payload.message.chat.id, "Agregá el tema después del comando");
-          return res.status(200).json({ ok: true });
+          return NextResponse.json({ok: true }, { status: 200 });
         }
 
         const today = new Date();
@@ -50,7 +75,7 @@ export default async function handler(request: NextRequest, res: NextResponse) {
 
         if (days === 7 * PODCAST_FREQUENCY - 1 || days === 0 || nextEpisodeDocResponse.results.length === 0) {
           await sendMessage(process.env.TELEGRAM_API_KEY, payload.message.chat.id, "Bancá que todavía ni creé el doc.");
-          return res.status(200).json({ ok: true });
+          return NextResponse.json({ok: true }, { status: 200 });
         }
 
         const notionEpisodeUrl = nextEpisodeDocResponse.results[0]?.url;
@@ -70,5 +95,5 @@ export default async function handler(request: NextRequest, res: NextResponse) {
       }
     }
   }
-  return res.status(200).json({ ok: true });
+  return NextResponse.json({ok: true }, { status: 200 });
 }
