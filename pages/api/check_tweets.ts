@@ -1,16 +1,16 @@
 
 import { createClient } from '@supabase/supabase-js';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { tweetMessage } from '../../services/twitter';
 
 const client = createClient(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_ANON_KEY!
 );
-export default async function handler(request: NextRequest, response: NextResponse) {
+export default async function handler() {
   const res = await client.from('tweets').select('*').filter('publish_date', 'lt', new Date().toUTCString());
   if(res.error) {
-    return response.status(500).json({ error: res.error });
+    return NextResponse.json({ error: res.error.message }, { status: 500 });
   }
 
   for (const tweet of res.data) {
@@ -18,5 +18,5 @@ export default async function handler(request: NextRequest, response: NextRespon
     await client.from('tweets').delete().match({ id: tweet.id });
   }
 
-  return response.status(200).json({ published: res.data.length });
+  return NextResponse.json({ ok: true });
 }
