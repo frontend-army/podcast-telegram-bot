@@ -32,11 +32,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (PRINT_REMAINING_DAYS) {
       if (days === 0) {
-        await sendMessage(process.env.TELEGRAM_API_KEY, process.env.CHAT_ID, `Hoy es el el podcast`);
+        await sendMessage(process.env.CHAT_ID, `Hoy es el el podcast`);
       } else if (days === 1) {
-        await sendMessage(process.env.TELEGRAM_API_KEY, process.env.CHAT_ID, `Falta ${days} día para el podcast`);
+        await sendMessage(process.env.CHAT_ID, `Falta ${days} día para el podcast`);
       } else {
-        await sendMessage(process.env.TELEGRAM_API_KEY, process.env.CHAT_ID, `Faltan ${days} días para el podcast`);
+        await sendMessage(process.env.CHAT_ID, `Faltan ${days} días para el podcast`);
       }
     }
 
@@ -53,7 +53,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Episode Topic Reminder
     if (days <= 9) {
       if (!await episodeDocHasTopic(nextEpisodeNumber)) {
-        await sendMessage(process.env.TELEGRAM_API_KEY, process.env.CHAT_ID, `Reminder: Definir tema para el capítulo ${nextEpisodeNumber}`);
+        await sendMessage(process.env.CHAT_ID, `Reminder: Definir tema para el capítulo ${nextEpisodeNumber}`);
       }
     }
 
@@ -62,11 +62,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (await episodeDocHasTopic(nextEpisodeNumber)) {
         const episodeQuestionsCount = await episodeDocQuestionsCount(nextEpisodeNumber);
         if (episodeQuestionsCount === 0) {
-          await sendMessage(process.env.TELEGRAM_API_KEY, process.env.CHAT_ID, `Reminder: Todavía no hay preguntas en el doc`);
+          await sendMessage(process.env.CHAT_ID, `Reminder: Todavía no hay preguntas en el doc`);
         } else if (episodeQuestionsCount < MIN_QUESTIONS) {
-          await sendMessage(process.env.TELEGRAM_API_KEY, process.env.CHAT_ID, `Reminder: Agregar preguntas al doc, solo hay ${episodeQuestionsCount} por ahora.`);
+          await sendMessage(process.env.CHAT_ID, `Reminder: Agregar preguntas al doc, solo hay ${episodeQuestionsCount} por ahora.`);
         } else if (episodeQuestionsCount < NICE_TO_HAVE_QUESTIONS) {
-          await sendMessage(process.env.TELEGRAM_API_KEY, process.env.CHAT_ID, `Reminder: Ya tenemos ${episodeQuestionsCount} preguntas en el doc. ¿Alguno quiere sumar más?`);
+          await sendMessage(process.env.CHAT_ID, `Reminder: Ya tenemos ${episodeQuestionsCount} preguntas en el doc. ¿Alguno quiere sumar más?`);
         }
       }
     }
