@@ -1,6 +1,6 @@
 "use client";
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const months = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto",
@@ -52,9 +52,6 @@ export default function Home() {
     alert('Tweet saved!');
   }
 
-  useEffect(() => {
-    throw new Error('This is an error');
-  }, []);
   return (
     <main className="flex min-h-screen flex-col items-center py-24 px-4 gap-12">
       {tweets.map((tweet, index) => (
