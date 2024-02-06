@@ -57,13 +57,13 @@ export default async function handler(request: TelegramRequest, res: NextApiResp
       const input = String(payload.message.text);
       if (input.split(" ")[0].toLowerCase() === SET_TOPIC_COMMAND.toLowerCase()) {
         if (payload.message.chat.id.toString() !== process.env.CHAT_ID) {
-          await sendMessage(process.env.TELEGRAM_API_KEY, payload.message.chat.id, "Solo respondo a comandos en el grupo.");
+          await sendMessage(payload.message.chat.id, "Solo respondo a comandos en el grupo.");
           return res.status(200).json({ ok: true })
         }
 
         const [topic, description] = input.slice(SET_TOPIC_COMMAND.length).trim().split(';');
         if (topic?.length === 0) {
-          await sendMessage(process.env.TELEGRAM_API_KEY, payload.message.chat.id, "Agregá el tema después del comando");
+          await sendMessage(payload.message.chat.id, "Agregá el tema después del comando");
           return res.status(200).json({ ok: true })
         }
 
@@ -73,24 +73,24 @@ export default async function handler(request: TelegramRequest, res: NextApiResp
         const nextEpisodeDocResponse = await getEpisodeDoc(nextEpisodeNumber);
 
         if (days === 7 * PODCAST_FREQUENCY - 1 || days === 0 || nextEpisodeDocResponse.results.length === 0) {
-          await sendMessage(process.env.TELEGRAM_API_KEY, payload.message.chat.id, "Bancá que todavía ni creé el doc.");
+          await sendMessage(payload.message.chat.id, "Bancá que todavía ni creé el doc.");
           return res.status(200).json({ ok: true })
         }
 
         const notionEpisodeUrl = nextEpisodeDocResponse.results[0]?.url;
         const response = `Capítulo ${nextEpisodeNumber}: ${topic} ${notionEpisodeUrl}
           Editor link: https://podcast-telegram-bot-seven.vercel.app/editor?date=${getNextPodcastDate(today).getTime()}&topic=${topic}&description=${description}`;
-        const sentMessage = await sendMessage(process.env.TELEGRAM_API_KEY, process.env.CHAT_ID, response);
+        const sentMessage = await sendMessage(process.env.CHAT_ID, response);
         const oldMessageProperty = nextEpisodeDocResponse.results[0]?.properties?.telegram_message_id
         // TODO: Separate updating title from message_id and get new url for message.
         await updateEpisodeDoc(nextEpisodeDocResponse.results[0]?.id, `${EPISODE_NAME_PREFIX} ${nextEpisodeNumber}: ${topic}`, oldMessageProperty.id, sentMessage?.result?.message_id)
 
         // unpin old message
         if (oldMessageProperty?.number) {
-          await unpinMessage(process.env.TELEGRAM_API_KEY, process.env.CHAT_ID, oldMessageProperty.number);
+          await unpinMessage(process.env.CHAT_ID, oldMessageProperty.number);
         }
         // pin new message
-        await pinMessage(process.env.TELEGRAM_API_KEY, process.env.CHAT_ID, sentMessage?.result?.message_id);
+        await pinMessage(process.env.CHAT_ID, sentMessage?.result?.message_id);
       }
     }
   }
