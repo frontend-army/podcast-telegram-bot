@@ -8,6 +8,11 @@ export default async function handler(request: NextApiRequest, response: NextApi
   // 1. Check if there's a new tweet from @bluesky
   const { data } = await axios.get(`https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=${actorAlias}`);
   const { feed } = data;
+  if(!feed.length) {
+    response.status(200).json({ message: 'Our account has no tweets' });
+    return;
+  }
+
   const latestTweet = feed[0];
   if(new Date(latestTweet.post.record.createdAt) > subMinutes(new Date(), 15)) {
     // 2. If there is, send it to tweeter / x
@@ -18,5 +23,4 @@ export default async function handler(request: NextApiRequest, response: NextApi
   } else {
     response.status(200).json({ message: 'No new tweets' });
   }
-  // 3. If there is one send it to discord
 }
