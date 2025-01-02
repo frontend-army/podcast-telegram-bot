@@ -108,6 +108,43 @@ export async function createNotionPage(title = "") {
         },
         {
           "object": "block",
+          "type": "paragraph",
+          "paragraph": {
+            "rich_text": [
+              {
+                "type": "text",
+                "text": {
+                  "content": "Responde la primera pregunta: ",
+                },
+                "annotations": {
+                  "bold": false,
+                  "italic": false,
+                  "strikethrough": false,
+                  "underline": false,
+                  "code": false,
+                  "color": "gray"
+                },
+              },
+              {
+                "type": "text",
+                "text": {
+                  "content": "A DEFINIR",
+                },
+                "annotations": {
+                  "bold": true,
+                  "italic": false,
+                  "strikethrough": false,
+                  "underline": false,
+                  "code": false,
+                  "color": "gray"
+                },
+              }
+            ],
+            "color": "default"
+          }
+        },
+        {
+          "object": "block",
           "type": "bulleted_list_item",
           "bulleted_list_item": {
             "rich_text": [{
@@ -117,7 +154,89 @@ export async function createNotionPage(title = "") {
               }
             }]
           }
-        }
+        },
+        {
+          "object": "block",
+          "type": "heading_1",
+          "heading_1": {
+            "rich_text": [{ "type": "text", "text": { "content": "Thumbnail" } }]
+          }
+        },
+        {
+          "object": "block",
+          "type": "heading_1",
+          "heading_1": {
+            "rich_text": [{ "type": "text", "text": { "content": "Highlights" } }]
+          }
+        },
+        {
+          "object": "block",
+          "type": "paragraph",
+          "paragraph": {
+            "rich_text": [
+              {
+                "type": "text",
+                "text": {
+                  "content": "Hora de comienzo del podcast: ",
+                },
+              }
+            ],
+            "color": "default"
+          }
+        },
+        {
+          "object": "block",
+          "type": "table",
+          "table": {
+            "table_width": 2,
+            "has_column_header": true,
+            "has_row_header": false,
+            "children": [
+              {
+                "type": "table_row",
+                "table_row": {
+                  "cells": [
+                    [
+                      {
+                        "type": "text",
+                        "text": {
+                          "content": "Timestamp",
+                        }
+                      }],
+                    [{
+                      "type": "text",
+                      "text": {
+                        "content": "Descripción",
+                      }
+                    }
+                    ],
+                  ]
+                }
+              },
+              {
+                "type": "table_row",
+                "table_row": {
+                  "cells": [
+                    [
+                      {
+                        "type": "text",
+                        "text": {
+                          "content": "",
+                        }
+                      }],
+                    [{
+                      "type": "text",
+                      "text": {
+                        "content": "",
+                      }
+                    }
+                    ],
+                  ]
+                }
+              }
+            ]
+          },
+        },
       ]
     }),
   });

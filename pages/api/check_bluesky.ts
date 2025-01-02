@@ -1,9 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { tweetMessage } from '../../services/twitter';
 import axios from 'axios';
-import subMinutes from 'date-fns/subMinutes';
+import { subMinutes } from 'date-fns/subMinutes';
 import { sendMessageToDiscord } from '../../services/discord';
-const actorAlias = 'frankiglesias.bsky.social';
+const actorAlias = 'frontendarmy.bsky.social';
 export default async function handler(request: NextApiRequest, response: NextApiResponse) {
   // 1. Check if there's a new tweet from @bluesky
   const { data } = await axios.get(`https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=${actorAlias}`);
