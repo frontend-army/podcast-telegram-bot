@@ -14,7 +14,7 @@ export const MONTHS = [
 ] as const;
 export const PODCAST_DAY_OF_WEEK = 3;
 export const STARTING_PODCAST_EPISODE = {
-  number: 66,
+  number: 65,
   year: 2025,
 };
 export const PODCAST_TIME = "15:00:00.000Z";
