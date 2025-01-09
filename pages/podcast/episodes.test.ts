@@ -2,7 +2,7 @@ import { getUpcomingEpisodes, getNextEpisode } from "./episodes";
 
 jest.useFakeTimers().setSystemTime(new Date("2025-01-02T03:00:00.000Z"));
 
-describe("getUpcommingEpisodes", () => {
+describe("getUpcomingEpisodes", () => {
   test("return episodes of the year 2025", () => {
     expect(getUpcomingEpisodes(new Date())).toMatchSnapshot();
   });
