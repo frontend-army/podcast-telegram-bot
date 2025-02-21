@@ -1,4 +1,4 @@
-import { getUpcomingEpisodes, getNextEpisode } from "./episodes";
+import { getUpcomingEpisodes, getNextEpisode } from "../pages/podcast/episodes";
 
 jest.useFakeTimers().setSystemTime(new Date("2025-01-02T03:00:00.000Z"));
 
