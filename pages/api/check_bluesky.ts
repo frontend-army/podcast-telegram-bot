@@ -18,10 +18,8 @@ export default async function handler(
     return;
   }
 
-  const latestTweet = feed[0];
-  if (
-    new Date(latestTweet.post.record.createdAt) > subMinutes(new Date(), 15)
-  ) {
+  const latestTweet = feed.find(tweet => new Date(tweet.post.record.createdAt) > subMinutes(new Date(), 15) && tweet.post.author.handle === actorAlias);
+  if (latestTweet) {
     // 2. If there is, send it to tweeter / x
     await tweetMessage(latestTweet.post.record.text);
     // 3. If there is one send it to discord
