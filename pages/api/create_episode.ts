@@ -1,8 +1,8 @@
 import { updateEpisodeDoc, getEpisodeDoc } from "../../services/notion";
 import { sendMessage, pinMessage, unpinMessage } from "../../services/telegram";
-import { EPISODE_NAME_PREFIX, SET_TOPIC_COMMAND } from "../podcast/config";
+import { EPISODE_NAME_PREFIX, SET_TOPIC_COMMAND } from "../../constants/podcast/config";
 import { NextApiRequest, NextApiResponse } from "next";
-import { dateDiffInDays, getNextEpisode } from "../podcast/episodes";
+import { dateDiffInDays, getNextEpisode } from "../../constants/podcast/episodes";
 
 interface TelegramRequest extends NextApiRequest {
   body: {

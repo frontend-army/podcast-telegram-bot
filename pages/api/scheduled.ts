@@ -11,9 +11,9 @@ import {
   EPISODE_NAME_SUFIX,
   MIN_QUESTIONS,
   NICE_TO_HAVE_QUESTIONS,
-} from "../podcast/config";
+} from "../../constants/podcast/config";
 import { NextApiRequest, NextApiResponse } from "next";
-import { dateDiffInDays, getNextEpisode } from "../podcast/episodes";
+import { dateDiffInDays, getNextEpisode } from "../../constants/podcast/episodes";
 
 export default async function handler(
   req: NextApiRequest,
