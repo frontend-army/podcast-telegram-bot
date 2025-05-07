@@ -1,8 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { tweetMessage } from "../../services/twitter";
 import axios from "axios";
 import { subMinutes } from "date-fns/subMinutes";
 import { sendMessageToDiscord } from "../../services/discord";
+import { tweetMessage } from "../../services/twitter";
+import { sendMessageToLinkedin } from "../../services/linkedin";
+
 const actorAlias = "frontendarmy.tech";
 export default async function handler(
   request: NextApiRequest,
@@ -24,6 +26,8 @@ export default async function handler(
     await tweetMessage(latestTweet.post.record.text);
     // 3. If there is one send it to discord
     await sendMessageToDiscord(latestTweet.post.record.text);
+    // 3. If there is send message to linkedin
+    await sendMessageToLinkedin(latestTweet.post.record.text);
     response.status(200).json({ message: latestTweet.post.record.text });
   } else {
     response.status(200).json({ message: "No new tweets" });
