@@ -26,7 +26,7 @@ function twitterWeightedLength(text: string): number {
 function truncateForTwitter(text: string): string {
     const TWITTER_MAX_CHARS = 280;
     if (twitterWeightedLength(text) <= TWITTER_MAX_CHARS) return text;
-    const chars = [...text];
+    const chars = text.match(/[\s\S]/gu) ?? [];
     while (chars.length > 0) {
         chars.pop();
         const candidate = chars.join('') + '…';
