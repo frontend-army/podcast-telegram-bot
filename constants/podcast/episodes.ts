@@ -63,3 +63,18 @@ export function dateDiffInDays(a, b) {
 
   return Math.floor((utc2 - utc1) / _MS_PER_DAY);
 }
+
+export function getLookbackMinutes(
+  queryValue: string | string[] | undefined,
+  defaultLookbackMinutes = 15,
+  maxLookbackMinutes = 24 * 60
+): number {
+  const rawValue = Array.isArray(queryValue) ? queryValue[0] : queryValue;
+  const parsedValue = Number(rawValue);
+
+  if (!rawValue || Number.isNaN(parsedValue)) {
+    return defaultLookbackMinutes;
+  }
+
+  return Math.min(Math.max(Math.floor(parsedValue), 1), maxLookbackMinutes);
+}
