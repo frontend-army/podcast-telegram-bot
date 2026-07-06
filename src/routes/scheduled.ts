@@ -12,13 +12,12 @@ import {
   MIN_QUESTIONS,
   NICE_TO_HAVE_QUESTIONS,
 } from "../../constants/podcast/config";
-import { NextApiRequest, NextApiResponse } from "next";
 import { dateDiffInDays, getNextEpisode } from "../../constants/podcast/episodes";
+import { Hono } from "hono";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export const router = new Hono();
+
+router.get("/api/scheduled", async (c) => {
   const today = new Date();
   const nextEpisode = getNextEpisode(today);
   const days = dateDiffInDays(today, nextEpisode.date);
@@ -39,18 +38,14 @@ export default async function handler(
     }
   }
 
-  // Next Episode Document Creation (Three weeks before the podcast)
   if (days === 7 * 3) {
-    // Create doc for next podcast from template
     if (!(await episodeDocExists(nextEpisode.number))) {
-      // TODO: Unpin old doc!
       await createNotionPage(
         `${EPISODE_NAME_PREFIX} ${nextEpisode.number}: ${EPISODE_NAME_SUFIX}`
       );
     }
   }
 
-  // Episode Topic Reminder (Two weeks before the podcast)
   if (days <= 7 * 2) {
     if (!(await episodeDocHasTopic(nextEpisode.number))) {
       await sendMessage(
@@ -60,7 +55,6 @@ export default async function handler(
     }
   }
 
-  // Episode Questions Reminder (One weeks before the podcast)
   if (days <= 7) {
     if (await episodeDocHasTopic(nextEpisode.number)) {
       const episodeQuestionsCount = await episodeDocQuestionsCount(
@@ -85,5 +79,5 @@ export default async function handler(
     }
   }
 
-  return res.status(200).json({ ok: true });
-}
+  return c.json({ ok: true });
+});
