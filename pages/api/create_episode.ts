@@ -73,10 +73,7 @@ export default async function handler(
         }
 
         const notionEpisodeUrl = nextEpisodeDocResponse.results[0]?.url;
-        const response = `Capítulo ${
-          nextEpisode.number
-        }: ${topic} ${notionEpisodeUrl}
-          Editor link: https://podcast-telegram-bot-seven.vercel.app/editor?date=${nextEpisode.date.getTime()}&topic=${topic}&description=${description}`;
+        const response = `Capítulo ${nextEpisode.number}: ${topic} ${notionEpisodeUrl}`;
         const sentMessage = await sendMessage(process.env.CHAT_ID, response);
         const oldMessageProperty =
           nextEpisodeDocResponse.results[0]?.properties?.telegram_message_id;
