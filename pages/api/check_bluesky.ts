@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 import { subMinutes } from "date-fns/subMinutes";
-import * as Sentry from "@sentry/nextjs";
 import { sendMessageToDiscord } from "../../services/discord";
 import { tweetMessage } from "../../services/twitter";
 import { sendMessageToLinkedin } from "../../services/linkedin";
@@ -63,27 +62,11 @@ function serializeError(error: unknown): Record<string, unknown> {
 
 function reportProviderError(
   provider: "twitter" | "discord" | "linkedin",
-  error: unknown,
-  context: { lookbackMinutes: number; actorAlias: string; textLength: number }
+  error: unknown
 ): ProviderResult {
   const details = formatError(error);
   const exception = serializeError(error);
-
-  Sentry.withScope(scope => {
-    scope.setTag("operation", "check_bluesky");
-    scope.setTag("provider", provider);
-    scope.setLevel("error");
-    scope.setContext("check_bluesky", {
-      details,
-      exception,
-      lookbackMinutes: context.lookbackMinutes,
-      actorAlias: context.actorAlias,
-      textLength: context.textLength,
-    });
-
-    Sentry.captureException(error instanceof Error ? error : new Error(details));
-  });
-
+  console.error(`[${provider}] ${details}`);
   return { error: details, exception };
 }
 
@@ -116,41 +99,36 @@ export default async function handler(
     }
 
     const text = latestTweet.post.record.text;
-    const providerContext = {
-      lookbackMinutes,
-      actorAlias,
-      textLength: text.length,
-    };
 
-    const results: { twitter: ProviderResult; discord: ProviderResult; linkedin: ProviderResult } = {
-      twitter: "ok",
-      discord: "ok",
-      linkedin: "ok",
+    const results = {
+      twitter: "ok" as ProviderResult,
+      discord: "ok" as ProviderResult,
+      linkedin: "ok" as ProviderResult,
     };
 
     // Try each provider independently so one failure does not crash the endpoint.
     try {
       await tweetMessage(text);
     } catch (error) {
-      results.twitter = reportProviderError("twitter", error, providerContext);
+      results.twitter = reportProviderError("twitter", error);
     }
 
     try {
       await sendMessageToDiscord(text);
     } catch (error) {
-      results.discord = reportProviderError("discord", error, providerContext);
+      results.discord = reportProviderError("discord", error);
     }
 
     try {
       await sendMessageToLinkedin(text);
     } catch (error) {
-      results.linkedin = reportProviderError("linkedin", error, providerContext);
+      results.linkedin = reportProviderError("linkedin", error);
     }
 
     response.status(200).json({ message: text, results });
   } catch (error) {
     const details = formatError(error);
-    Sentry.captureException(error instanceof Error ? error : new Error(details));
+    console.error(details);
 
     response
       .status(500)
