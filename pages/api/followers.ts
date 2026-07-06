@@ -21,8 +21,9 @@ export default async function handler(request: NextApiRequest, response: NextApi
   console.log(instagram);
   const count = instagram.data?.data.user.edge_followed_by.count;
   const followerCount = await client.from('follow_count').select('count').eq('id', 1).single();
-  console.log(count, followerCount.data?.count);
-  if(count > followerCount.data?.count + 10) { 
+  const previousCount = followerCount.data?.count ?? 0;
+  console.log(count, previousCount);
+  if(count > previousCount + 10) { 
     await sendMessage(process.env.CHAT_ID, `👤 Followers: ${count}`);
     await client.from('follow_count').upsert({ id: 1, count });
   }
