@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Podcast Telegram Bot
 
-## Getting Started
+Headless Hono API bot deployed on Vercel. Cross-posts podcast content to Twitter/X, Discord, LinkedIn, and Telegram.
 
-First, run the development server:
+## Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Runtime**: Bun (local + Vercel via `bunVersion: "1.x"`)
+- **Framework**: Hono 4
+- **Deploy**: Vercel Functions (`api/[[route]].ts` catch-all)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Command | Description |
+|---------|-------------|
+| `bun dev` | Start dev server with hot reload |
+| `bun test` | Run tests |
+| `tsc` | Type-check |
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Endpoints
 
-## Learn More
+| Method | Path | Trigger |
+|--------|------|---------|
+| GET | `/api/check_bluesky` | Vercel Cron |
+| POST | `/api/check_live` | Twitch EventSub |
+| GET | `/api/check_tweets` | Vercel Cron |
+| POST | `/api/create_episode` | Telegram webhook |
+| POST | `/api/new_episode` | Notion webhook |
+| GET | `/api/scheduled` | Vercel Cron |
+| POST | `/api/tweet` | Supabase |
 
-To learn more about Next.js, take a look at the following resources:
+## Secrets
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+All configured via Vercel Environment Variables. See `.env.example` for the full list.

@@ -1,4 +1,4 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { Hono } from "hono";
 import axios from "axios";
 import { subMinutes } from "date-fns/subMinutes";
 import { sendMessageToDiscord } from "../../services/discord";
@@ -70,32 +70,28 @@ function reportProviderError(
   return { error: details, exception };
 }
 
-export default async function handler(
-  request: NextApiRequest,
-  response: NextApiResponse
-) {
-  try {
-    const lookbackMinutes = getLookbackMinutes(
-      request.query.lookbackMinutes ?? request.query.minutes
-    );
+export const router = new Hono();
 
-    // 1. Check if there's a new tweet from @bluesky
+router.get("/api/check_bluesky", async (c) => {
+  const lookbackMinutes = getLookbackMinutes(
+    c.req.query("lookbackMinutes") ?? c.req.query("minutes")
+  );
+
+  try {
     const data = await getAuthorFeed(actorAlias);
     const { feed } = data;
     if (!feed.length) {
-      response.status(200).json({ message: "Our account has no tweets" });
-      return;
+      return c.json({ message: "Our account has no tweets" });
     }
 
     const latestTweet = feed.find(
-      tweet =>
+      (tweet: { post: { record: { createdAt: string }; author: { handle: string } } }) =>
         new Date(tweet.post.record.createdAt) >
           subMinutes(new Date(), lookbackMinutes) &&
         tweet.post.author.handle === actorAlias
     );
     if (!latestTweet) {
-      response.status(200).json({ message: "No new tweets" });
-      return;
+      return c.json({ message: "No new tweets" });
     }
 
     const text = latestTweet.post.record.text;
@@ -106,7 +102,6 @@ export default async function handler(
       linkedin: "ok" as ProviderResult,
     };
 
-    // Try each provider independently so one failure does not crash the endpoint.
     try {
       await tweetMessage(text);
     } catch (error) {
@@ -125,13 +120,14 @@ export default async function handler(
       results.linkedin = reportProviderError("linkedin", error);
     }
 
-    response.status(200).json({ message: text, results });
+    return c.json({ message: text, results });
   } catch (error) {
     const details = formatError(error);
     console.error(details);
 
-    response
-      .status(500)
-      .json({ message: "Failed to check Bluesky feed", error: details });
+    return c.json(
+      { message: "Failed to check Bluesky feed", error: details },
+      500
+    );
   }
-}
+});
