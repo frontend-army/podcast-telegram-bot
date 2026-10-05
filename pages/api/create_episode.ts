@@ -39,9 +39,9 @@ export default async function handler(
       if (
         input.split(" ")[0].toLowerCase() === SET_TOPIC_COMMAND.toLowerCase()
       ) {
-        if (payload.message.chat.id.toString() !== process.env.CHAT_ID) {
+        if (payload.message.chat.id.toString() !== process.env.CHAT_ID!) {
           await sendMessage(
-            payload.message.chat.id,
+            String(payload.message.chat.id),
             "Solo respondo a comandos en el grupo."
           );
           return res.status(200).json({ ok: true });
@@ -53,7 +53,7 @@ export default async function handler(
           .split(";");
         if (topic?.length === 0) {
           await sendMessage(
-            payload.message.chat.id,
+            String(payload.message.chat.id),
             "Agregá el tema después del comando"
           );
           return res.status(200).json({ ok: true });
@@ -66,7 +66,7 @@ export default async function handler(
 
         if (days === 0 || nextEpisodeDocResponse.results.length === 0) {
           await sendMessage(
-            payload.message.chat.id,
+            String(payload.message.chat.id),
             "Bancá que todavía ni creé el doc."
           );
           return res.status(200).json({ ok: true });
@@ -74,7 +74,7 @@ export default async function handler(
 
         const notionEpisodeUrl = nextEpisodeDocResponse.results[0]?.url;
         const response = `Capítulo ${nextEpisode.number}: ${topic} ${notionEpisodeUrl}`;
-        const sentMessage = await sendMessage(process.env.CHAT_ID, response);
+        const sentMessage = await sendMessage(String(process.env.CHAT_ID!), response);
         const oldMessageProperty =
           nextEpisodeDocResponse.results[0]?.properties?.telegram_message_id;
         // TODO: Separate updating title from message_id and get new url for message.
@@ -87,10 +87,10 @@ export default async function handler(
 
         // unpin old message
         if (oldMessageProperty?.number) {
-          await unpinMessage(process.env.CHAT_ID, oldMessageProperty.number);
+          await unpinMessage(String(process.env.CHAT_ID!), oldMessageProperty.number);
         }
         // pin new message
-        await pinMessage(process.env.CHAT_ID, sentMessage?.result?.message_id);
+        await pinMessage(String(process.env.CHAT_ID!), sentMessage?.result?.message_id);
       }
     }
   }

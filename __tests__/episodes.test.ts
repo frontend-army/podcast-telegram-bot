@@ -1,6 +1,7 @@
 import { getUpcomingEpisodes, getNextEpisode } from "../constants/podcast/episodes";
+import { vi } from 'vitest';
 
-jest.useFakeTimers().setSystemTime(new Date("2025-01-02T03:00:00.000Z"));
+vi.useFakeTimers().setSystemTime(new Date("2025-01-02T03:00:00.000Z"));
 
 describe("getUpcomingEpisodes", () => {
   test("return episodes of the year 2025", () => {
@@ -55,8 +56,8 @@ describe("getNextPodcastDate", () => {
       getUpcomingEpisodes(new Date("2024-05-24T21:00:00.000Z"));
     }
 
-    expect(getOldEpisode).toThrowErrorMatchingInlineSnapshot(
-      `"Cannot generate episodes before 2025"`
+    expect(getOldEpisode).toThrowError(
+      "Cannot generate episodes before 2025"
     );
   });
 });

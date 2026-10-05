@@ -25,15 +25,15 @@ export default async function handler(
 
   if (PRINT_REMAINING_DAYS) {
     if (days === 0) {
-      await sendMessage(process.env.CHAT_ID, `Hoy es el el podcast`);
+      await sendMessage(String(process.env.CHAT_ID!), `Hoy es el el podcast`);
     } else if (days === 1) {
       await sendMessage(
-        process.env.CHAT_ID,
+        process.env.CHAT_ID!!,
         `Falta ${days} día para el podcast`
       );
     } else {
       await sendMessage(
-        process.env.CHAT_ID,
+        process.env.CHAT_ID!!,
         `Faltan ${days} días para el podcast`
       );
     }
@@ -54,7 +54,7 @@ export default async function handler(
   if (days <= 7 * 2) {
     if (!(await episodeDocHasTopic(nextEpisode.number))) {
       await sendMessage(
-        process.env.CHAT_ID,
+        process.env.CHAT_ID!!,
         `Reminder: Definir tema para el capítulo ${nextEpisode.number}`
       );
     }
@@ -68,17 +68,17 @@ export default async function handler(
       );
       if (episodeQuestionsCount === 0) {
         await sendMessage(
-          process.env.CHAT_ID,
+          process.env.CHAT_ID!!,
           `Reminder: Sumar preguntas para el podcast al notion`
         );
       } else if (episodeQuestionsCount < MIN_QUESTIONS) {
         await sendMessage(
-          process.env.CHAT_ID,
+          process.env.CHAT_ID!!,
           `Reminder: Sumar preguntas para el podcast al notion, por ahora hay ${episodeQuestionsCount}.`
         );
       } else if (episodeQuestionsCount < NICE_TO_HAVE_QUESTIONS) {
         await sendMessage(
-          process.env.CHAT_ID,
+          process.env.CHAT_ID!!,
           `Reminder: Ya tenemos ${episodeQuestionsCount} preguntas en el notion. ¿Alguno quiere sumar más?`
         );
       }
