@@ -1,13 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
-import { subMinutes } from "date-fns/subMinutes";
 import * as discord from "../../services/discord";
-import * as twitter from "../../services/twitter";
+import * as bluesky from "../../services/bluesky";
 import * as linkedin from "../../services/linkedin";
-import { getAuthorFeed } from "../../services/bluesky";
+import { getLatestTweets } from "../../services/twitter";
 import { getLookbackMinutes } from "../../constants/podcast/episodes";
-
-const actorAlias = "frontendarmy.tech";
 
 function formatError(error: unknown): string {
   if (axios.isAxiosError(error)) {
@@ -61,7 +58,7 @@ function serializeError(error: unknown): Record<string, unknown> {
 }
 
 function reportProviderError(
-  provider: "twitter" | "discord" | "linkedin",
+  provider: "bluesky" | "discord" | "linkedin",
   error: unknown
 ): ProviderResult {
   const details = formatError(error);
@@ -79,38 +76,29 @@ export default async function handler(
       request.query.lookbackMinutes ?? request.query.minutes
     );
 
-    // 1. Check if there's a new tweet from @bluesky
-    const data = await getAuthorFeed(actorAlias);
-    const { feed } = data;
-    if (!feed.length) {
-      response.status(200).json({ message: "Our account has no tweets" });
-      return;
-    }
-
-    const latestTweet = feed.find(
-      tweet =>
-        new Date(tweet.post.record.createdAt) >
-          subMinutes(new Date(), lookbackMinutes) &&
-        tweet.post.author.handle === actorAlias
-    );
-    if (!latestTweet) {
+    // 1. Check if there's a new tweet in the lookback window
+    const tweets = await getLatestTweets(lookbackMinutes);
+    if (!tweets.length) {
       response.status(200).json({ message: "No new tweets" });
       return;
     }
 
-    const text = latestTweet.post.record.text;
+    const latestTweet = tweets.reduce((newest, tweet) =>
+      tweet.created_at > newest.created_at ? tweet : newest
+    );
+    const text = latestTweet.text;
 
     const results = {
-      twitter: "ok" as ProviderResult,
+      bluesky: "ok" as ProviderResult,
       discord: "ok" as ProviderResult,
       linkedin: "ok" as ProviderResult,
     };
 
     // Try each provider independently so one failure does not crash the endpoint.
     try {
-      await twitter.sendMessage(text);
+      await bluesky.sendMessage(text);
     } catch (error) {
-      results.twitter = reportProviderError("twitter", error);
+      results.bluesky = reportProviderError("bluesky", error);
     }
 
     try {
@@ -132,6 +120,6 @@ export default async function handler(
 
     response
       .status(500)
-      .json({ message: "Failed to check Bluesky feed", error: details });
+      .json({ message: "Failed to check latest tweets", error: details });
   }
 }
