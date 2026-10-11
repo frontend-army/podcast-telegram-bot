@@ -1,4 +1,4 @@
-import { tweetMessage } from "../../services/twitter";
+import { sendMessage } from "../../services/twitter";
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(request: NextApiRequest, response: NextApiResponse) {
@@ -11,6 +11,6 @@ ${chapter.description}
 ➡️YouTube: ${chapter.youtube_url}
 Tambien te esperamos en nuestro Discord! 👋
 ➡️Discord: https://discord.com/invite/pKQ6KdPBj3`;
-    await tweetMessage(text);
+    await sendMessage(text);
     return response.status(200).json({ ok: true });
 }

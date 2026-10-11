@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { tweetMessage } from '../../services/twitter';
+import { sendMessage } from '../../services/twitter';
 
 const MESSAGE_TYPE = 'Twitch-Eventsub-Message-Type'.toLowerCase();
 
@@ -26,7 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   console.log(streams.data);
   const streamTitle = streams.data[0]?.title;
   if(streamTitle) {
-    await tweetMessage(`🔴ESTAMOS LIVE🔴
+    await sendMessage(`🔴ESTAMOS LIVE🔴
 
 🔥🔥🔥
 ${streamTitle}

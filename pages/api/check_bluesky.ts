@@ -1,9 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 import { subMinutes } from "date-fns/subMinutes";
-import { sendMessageToDiscord } from "../../services/discord";
-import { tweetMessage } from "../../services/twitter";
-import { sendMessageToLinkedin } from "../../services/linkedin";
+import * as discord from "../../services/discord";
+import * as twitter from "../../services/twitter";
+import * as linkedin from "../../services/linkedin";
 import { getAuthorFeed } from "../../services/bluesky";
 import { getLookbackMinutes } from "../../constants/podcast/episodes";
 
@@ -108,19 +108,19 @@ export default async function handler(
 
     // Try each provider independently so one failure does not crash the endpoint.
     try {
-      await tweetMessage(text);
+      await twitter.sendMessage(text);
     } catch (error) {
       results.twitter = reportProviderError("twitter", error);
     }
 
     try {
-      await sendMessageToDiscord(text);
+      await discord.sendMessage(text);
     } catch (error) {
       results.discord = reportProviderError("discord", error);
     }
 
     try {
-      await sendMessageToLinkedin(text);
+      await linkedin.sendMessage(text);
     } catch (error) {
       results.linkedin = reportProviderError("linkedin", error);
     }

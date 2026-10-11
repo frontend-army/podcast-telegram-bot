@@ -1,6 +1,6 @@
 
 import { createClient } from '@supabase/supabase-js';
-import { tweetMessage } from '../../services/twitter';
+import { sendMessage } from '../../services/twitter';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 const client = createClient(
@@ -14,7 +14,7 @@ export default async function handler(request: NextApiRequest, response: NextApi
   }
 
   for (const tweet of res.data) {
-    await tweetMessage(tweet.text);
+    await sendMessage(tweet.text);
     await client.from('tweets').delete().match({ id: tweet.id });
   }
 

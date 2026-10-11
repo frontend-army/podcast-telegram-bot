@@ -1,4 +1,5 @@
 import { TwitterApi } from 'twitter-api-v2';
+import type { SendMessage } from '../types';
 
 function getClientOAuth1() {
     return new TwitterApi({
@@ -35,7 +36,7 @@ function truncateForTwitter(text: string): string {
     return text;
 }
 
-export async function tweetMessage(text: string) {
+export const sendMessage: SendMessage = async (text: string) => {
     const client = getClientOAuth1();
     return await client.v2.tweet(truncateForTwitter(text));
-}
+};

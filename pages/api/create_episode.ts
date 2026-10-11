@@ -47,7 +47,7 @@ export default async function handler(
           return res.status(200).json({ ok: true });
         }
 
-        const [topic, description] = input
+        const [topic] = input
           .slice(SET_TOPIC_COMMAND.length)
           .trim()
           .split(";");
