@@ -104,6 +104,37 @@ describe("GET /api/check_posts", () => {
     expect(payload.results.discord.error).toBe("discord down");
   });
 
+  it("returns a serializable payload when a provider throws an axios error", async () => {
+    const text = "Nuevo capitulo disponible!";
+    mockedGetLatestTweets.mockResolvedValue([
+      tweet(text, "2025-06-04T14:55:00.000Z"),
+    ]);
+
+    const axiosError = {
+      isAxiosError: true,
+      name: "AxiosError",
+      message: "Request failed with status code 400",
+      response: {
+        status: 400,
+        data: { error: "InvalidRequest", message: "Input must have the property identifier" },
+      },
+      request: {},
+    } as unknown as Error;
+    (axiosError as unknown as Record<string, unknown>).toJSON = () => {
+      throw new TypeError("Converting circular structure to JSON");
+    };
+    mockedBluesky.mockRejectedValueOnce(axiosError);
+    const response = createMockResponse();
+
+    await handler(createMockRequest({ method: "GET" }), response);
+
+    expect(response.status).toHaveBeenCalledWith(200);
+    const payload = response.json.mock.calls[0][0];
+    expect(payload.results.bluesky.error).toContain("HTTP 400");
+    expect(payload.results.bluesky.exception.status).toBe(400);
+    expect(JSON.stringify(payload)).toContain("Input must have the property identifier");
+  });
+
   it("returns 500 when fetching tweets throws", async () => {
     mockedGetLatestTweets.mockRejectedValue(new Error("network error"));
     const response = createMockResponse();

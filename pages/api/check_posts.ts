@@ -46,15 +46,33 @@ function formatError(error: unknown): string {
 
 type ProviderResult = "ok" | { error: string; exception: Record<string, unknown> };
 
+function toSerializable(value: unknown): unknown {
+  try {
+    return JSON.parse(JSON.stringify(value));
+  } catch {
+    return String(value);
+  }
+}
+
 function serializeError(error: unknown): Record<string, unknown> {
+  if (axios.isAxiosError(error)) {
+    // Never spread the raw axios error: it holds circular request/response
+    // objects that break JSON serialization of the API response.
+    return {
+      name: error.name,
+      message: error.message,
+      ...(error.response?.status ? { status: error.response.status } : {}),
+      ...(error.response?.data !== undefined
+        ? { data: toSerializable(error.response.data) }
+        : {}),
+    };
+  }
+
   if (error instanceof Error) {
-    const errorObject = error as unknown as Record<string, unknown>;
-    return { ...errorObject, message: error.message, name: error.name };
+    return { name: error.name, message: error.message };
   }
-  if (typeof error === "object" && error !== null) {
-    return { ...error as Record<string, unknown> };
-  }
-  return { raw: String(error) };
+
+  return { raw: toSerializable(error) };
 }
 
 function reportProviderError(
