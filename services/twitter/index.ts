@@ -1,6 +1,9 @@
 import { TwitterApi } from 'twitter-api-v2';
-import { getChannels, getOrganizations, getSentPosts } from '../buffer';
+import { getSentPosts } from '../buffer';
 import type { SendMessage } from '../types';
+
+const BUFFER_ORGANIZATION_ID = '64ea378b095a1835ebf8b89b';
+const BUFFER_TWITTER_CHANNEL_ID = '684f34030530b816c2112c7d';
 
 function getClientOAuth1() {
     return new TwitterApi({
@@ -50,12 +53,11 @@ export interface LatestTweet {
 
 export async function getLatestTweets(minutes = 15): Promise<LatestTweet[]> {
     const since = new Date(Date.now() - minutes * 60_000).toISOString();
-    const [organization] = await getOrganizations();
-    if (!organization) return [];
-    const channels = await getChannels(organization.id);
-    const twitterChannel = channels.find((channel) => channel.service === "twitter");
-    if (!twitterChannel) return [];
-    const posts = await getSentPosts(organization.id, twitterChannel.id, since);
+    const posts = await getSentPosts(
+        BUFFER_ORGANIZATION_ID,
+        BUFFER_TWITTER_CHANNEL_ID,
+        since
+    );
     return posts.map((post) => ({
         id: post.id,
         text: post.text,

@@ -8,17 +8,11 @@ vi.mock("twitter-api-v2", () => ({
 }));
 
 vi.mock("../../services/buffer", () => ({
-  getOrganizations: vi.fn(),
-  getChannels: vi.fn(),
   getSentPosts: vi.fn(),
 }));
 
 import { TwitterApi } from "twitter-api-v2";
-import {
-  getChannels,
-  getOrganizations,
-  getSentPosts,
-} from "../../services/buffer";
+import { getSentPosts } from "../../services/buffer";
 import { getLatestTweets, sendMessage } from "../../services/twitter";
 
 const instance = {
@@ -28,8 +22,6 @@ const instance = {
 };
 
 const mockedTwitterApi = vi.mocked(TwitterApi);
-const mockedGetOrganizations = vi.mocked(getOrganizations);
-const mockedGetChannels = vi.mocked(getChannels);
 const mockedGetSentPosts = vi.mocked(getSentPosts);
 
 describe("services/twitter", () => {
@@ -54,31 +46,22 @@ describe("services/twitter", () => {
   });
 
   it("returns the twitter posts sent in the last 15 minutes", async () => {
-    mockedGetOrganizations.mockResolvedValueOnce([
-      { id: "org-1", name: "Frontend Army" },
-    ]);
-    mockedGetChannels.mockResolvedValueOnce([
-      { id: "chan-linkedin", name: "frontend-army", service: "linkedin" },
-      { id: "chan-twitter", name: "frontend_army", service: "twitter" },
-    ]);
     mockedGetSentPosts.mockResolvedValueOnce([
       {
         id: "p-1",
         text: "Capitulo 85",
         createdAt: "2026-10-11T13:00:00.000Z",
         dueAt: "2026-10-11T13:00:00.000Z",
-        channelId: "chan-twitter",
+        channelId: "684f34030530b816c2112c7d",
       },
     ]);
 
     const tweets = await getLatestTweets(15);
 
-    expect(mockedGetOrganizations).toHaveBeenCalled();
-    expect(mockedGetChannels).toHaveBeenCalledWith("org-1");
     expect(mockedGetSentPosts).toHaveBeenCalledTimes(1);
     const [orgId, channelId, since] = mockedGetSentPosts.mock.calls[0];
-    expect(orgId).toBe("org-1");
-    expect(channelId).toBe("chan-twitter");
+    expect(orgId).toBe("64ea378b095a1835ebf8b89b");
+    expect(channelId).toBe("684f34030530b816c2112c7d");
     expect(since).toEqual(expect.any(String));
     expect(tweets).toEqual([
       {
@@ -89,17 +72,11 @@ describe("services/twitter", () => {
     ]);
   });
 
-  it("returns an empty list when there is no twitter channel", async () => {
-    mockedGetOrganizations.mockResolvedValueOnce([
-      { id: "org-1", name: "Frontend Army" },
-    ]);
-    mockedGetChannels.mockResolvedValueOnce([
-      { id: "chan-linkedin", name: "frontend-army", service: "linkedin" },
-    ]);
+  it("returns an empty list when there are no sent posts", async () => {
+    mockedGetSentPosts.mockResolvedValueOnce([]);
 
     const tweets = await getLatestTweets();
 
-    expect(mockedGetSentPosts).not.toHaveBeenCalled();
     expect(tweets).toEqual([]);
   });
 

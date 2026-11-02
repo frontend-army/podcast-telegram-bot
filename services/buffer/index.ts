@@ -25,17 +25,6 @@ async function gql<T>(query: string): Promise<T> {
   return data.data;
 }
 
-export interface BufferOrganization {
-  id: string;
-  name: string;
-}
-
-export interface BufferChannel {
-  id: string;
-  name: string;
-  service: string;
-}
-
 export interface BufferSentPost {
   id: string;
   text: string;
@@ -48,33 +37,6 @@ interface GetSentPostsResponse {
   posts: {
     edges: { node: BufferSentPost }[];
   };
-}
-
-export async function getOrganizations(): Promise<BufferOrganization[]> {
-  return await gql<{
-    account: { organizations: BufferOrganization[] };
-  }>(`query GetOrganizations {
-    account {
-      organizations {
-        id
-        name
-      }
-    }
-  }`).then((result) => result.account.organizations);
-}
-
-export async function getChannels(
-  organizationId: string
-): Promise<BufferChannel[]> {
-  return await gql<{
-    channels: BufferChannel[];
-  }>(`query GetChannels {
-    channels(input: { organizationId: "${organizationId}" }) {
-      id
-      name
-      service
-    }
-  }`).then((result) => result.channels);
 }
 
 export async function getSentPosts(
