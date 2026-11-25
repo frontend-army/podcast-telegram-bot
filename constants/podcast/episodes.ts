@@ -67,7 +67,7 @@ export function dateDiffInDays(a, b) {
 export function getLookbackMinutes(
   queryValue: string | string[] | undefined,
   defaultLookbackMinutes = 15,
-  maxLookbackMinutes = 24 * 60
+  maxLookbackMinutes = 7 * 24 * 60
 ): number {
   const rawValue = Array.isArray(queryValue) ? queryValue[0] : queryValue;
   const parsedValue = Number(rawValue);
